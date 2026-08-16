@@ -2,6 +2,7 @@ import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { app as fixtureApp } from "../examples/fixture.js";
 import {
   defineAction,
   defineApp,
@@ -54,6 +55,28 @@ function context(action: string, input: unknown = {}): WindforceContext {
 }
 
 describe("Application SDK", () => {
+  it("ships a multi-action conformance fixture for HumanTask, placement, and scoped access", async () => {
+    const artifacts = fixtureApp.describe();
+    expect(Object.keys(artifacts.manifest.actions)).toEqual(["echo", "review"]);
+    expect(artifacts.manifest.actions.review).toMatchObject({
+      runsOn: ["browser"],
+      runtimeAccess: {
+        variables: [
+          { scope: "workspace", path: "defaults/locale" },
+          { scope: "app", path: "connections/default/session" },
+        ],
+        writeVariables: [{ scope: "app", path: "connections/default/session", storage: "secret" }],
+        writeResources: [{ scope: "app", path: "connections/default/profile" }],
+      },
+    });
+    expect(artifacts.files["schemas/review.input.schema.json"]).toContain('"title"');
+    expect(artifacts.files["schemas/review.output.schema.json"]).toContain('"outcome"');
+    await expect(fixtureApp.main(context("review", { title: "Fixture" }))).resolves.toEqual({
+      taskId: "task",
+      outcome: "cancel",
+    });
+  });
+
   it("dispatches a typed Action through the SDK-neutral main(ctx) interface", async () => {
     const echo = defineAction<"echo", { value: string }, { echoed: string }>({
       name: "echo",

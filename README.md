@@ -61,6 +61,9 @@ Changing the filename does not change the manifest schema. Whether generated
 artifacts are committed, emitted into build output, or promoted to a separate
 deployment repository remains an App delivery decision.
 
+See [Core compatibility](docs/compatibility.md) for the structural ABI and
+conformance snapshot verified by this release line.
+
 ## Development
 
 ```text
