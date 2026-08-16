@@ -66,7 +66,7 @@ export interface WindforceContext<TInput = unknown> {
     ): Promise<RuntimeMutationResult>;
   };
   resources: {
-    get<T = unknown>(path: string, scope?: "workspace" | "app"): Promise<T>;
+    get(path: string, scope?: "workspace" | "app"): Promise<unknown>;
     set(
       path: string,
       value: unknown,

@@ -30,8 +30,8 @@ function context(action: string, input: unknown = {}): WindforceContext {
       },
     },
     resources: {
-      async get<T>() {
-        return {} as T;
+      async get() {
+        return {};
       },
       async set(path) {
         return { path, revision: 1 };
