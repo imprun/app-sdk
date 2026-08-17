@@ -1,3 +1,4 @@
+import { consumeRuntimeCapabilities } from "./runtime-capabilities.js";
 export const DEFAULT_MANIFEST_FILE = "windforce.json";
 export const MANIFEST_FILE_ENV = "WINDFORCE_CORE_MANIFEST_FILE";
 const MAX_TIMEOUT_SECONDS = 2_147_483_647;
@@ -205,7 +206,8 @@ export function defineApp(options) {
         ...(options.use ? { use: options.use } : {}),
         ...(options.onError ? { onError: options.onError } : {}),
     };
-    const main = async (context) => {
+    const main = async (hostContext) => {
+        const context = consumeRuntimeCapabilities(hostContext);
         const run = async () => {
             const action = byName.get(context.action);
             if (!action)

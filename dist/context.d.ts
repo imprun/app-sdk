@@ -30,11 +30,25 @@ export interface RuntimeMutationResult {
     replayed?: boolean;
 }
 /**
+ * A Job-scoped view of a worker-local capability gateway.
+ *
+ * The SDK consumes Core's reserved transport metadata before Application code
+ * runs. The returned bearer header is scoped to this Job and is safe to pass
+ * only to the loopback endpoint returned by `endpoint`.
+ */
+export interface RuntimeCapabilities {
+    readonly available: readonly string[];
+    readonly headers: Readonly<Record<"Authorization", string>>;
+    has(capability: string): boolean;
+    endpoint(path: string): string;
+}
+/**
  * The public structural context consumed by an App. Windforce Core owns the
  * meaning and transport of these capabilities; this SDK never constructs them.
  */
 export interface WindforceContext<TInput = unknown> {
     input: TInput;
+    capabilities?: RuntimeCapabilities;
     trigger: {
         kind: "api" | "webhook" | "schedule" | "manual" | string;
         raw?: unknown;
