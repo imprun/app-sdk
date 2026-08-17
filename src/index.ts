@@ -2,6 +2,7 @@ export type {
   HumanTaskDecision,
   HumanTaskRequest,
   ResumeUrls,
+  RuntimeCapabilities,
   RuntimeMutationOptions,
   RuntimeMutationResult,
   WindforceContext,

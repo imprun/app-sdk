@@ -91,6 +91,59 @@ describe("Application SDK", () => {
     await expect(app.main(context("missing"))).rejects.toThrow("unknown action: missing");
   });
 
+  it("consumes private runtime metadata into a Job-scoped capability facade", async () => {
+    const action = defineAction({
+      name: "browser",
+      handler(ctx) {
+        expect(ctx.input).toEqual({ value: "hello" });
+        expect(ctx.capabilities?.available).toEqual(["document.pdf/v1", "edge-cdp/v1"]);
+        expect(ctx.capabilities?.has("edge-cdp/v1")).toBe(true);
+        expect(ctx.capabilities?.headers).toEqual({ Authorization: "Bearer job-secret" });
+        return {
+          http: ctx.capabilities?.endpoint("edge-cdp"),
+          websocket: ctx.capabilities?.webSocketEndpoint("edge-cdp"),
+        };
+      },
+    });
+    const app = defineApp({ name: "fixture", entrypoint: "src/main.ts", actions: [action] });
+    const result = await app.main(
+      context("browser", {
+        value: "hello",
+        _SCRAPING_RUNTIME: {
+          capabilities: {
+            baseUrl: "http://127.0.0.1:18092",
+            runRef: "run/fixture",
+            runToken: "job-secret",
+            available: ["edge-cdp/v1", "document.pdf/v1", "edge-cdp/v1"],
+          },
+        },
+      }),
+    );
+    expect(result).toEqual({
+      http: "http://127.0.0.1:18092/v1/runs/run%2Ffixture/edge-cdp",
+      websocket: "ws://127.0.0.1:18092/v1/runs/run%2Ffixture/edge-cdp",
+    });
+  });
+
+  it("rejects malformed or non-loopback worker capability metadata", async () => {
+    const action = defineAction({ name: "browser", handler() {} });
+    const app = defineApp({ name: "fixture", entrypoint: "src/main.ts", actions: [action] });
+    await expect(
+      app.main(
+        context("browser", {
+          _SCRAPING_RUNTIME: {
+            capabilities: {
+              baseUrl: "https://example.invalid",
+              runRef: "run",
+              runToken: "secret",
+              available: ["edge-cdp/v1"],
+            },
+          },
+        }),
+      ),
+    ).rejects.toThrow("explicit loopback HTTP URL");
+  });
+
   it("derives exact runtime grants and deterministic schema files", () => {
     const login = defineAction({
       name: "connection.login",

@@ -1,4 +1,5 @@
 import type { WindforceContext } from "./context.js";
+import { consumeRuntimeCapabilities } from "./runtime-capabilities.js";
 
 export const DEFAULT_MANIFEST_FILE = "windforce.json";
 export const MANIFEST_FILE_ENV = "WINDFORCE_CORE_MANIFEST_FILE";
@@ -359,7 +360,8 @@ export function defineApp(options: DefineAppOptions): DefinedApp {
     ...(options.use ? { use: options.use } : {}),
     ...(options.onError ? { onError: options.onError } : {}),
   };
-  const main = async (context: WindforceContext): Promise<unknown> => {
+  const main = async (hostContext: WindforceContext): Promise<unknown> => {
+    const context = consumeRuntimeCapabilities(hostContext);
     const run = async (): Promise<unknown> => {
       const action = byName.get(context.action);
       if (!action) throw new Error(`unknown action: ${context.action}`);
