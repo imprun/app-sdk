@@ -99,7 +99,10 @@ describe("Application SDK", () => {
         expect(ctx.capabilities?.available).toEqual(["document.pdf/v1", "edge-cdp/v1"]);
         expect(ctx.capabilities?.has("edge-cdp/v1")).toBe(true);
         expect(ctx.capabilities?.headers).toEqual({ Authorization: "Bearer job-secret" });
-        return ctx.capabilities?.endpoint("edge-cdp");
+        return {
+          http: ctx.capabilities?.endpoint("edge-cdp"),
+          websocket: ctx.capabilities?.webSocketEndpoint("edge-cdp"),
+        };
       },
     });
     const app = defineApp({ name: "fixture", entrypoint: "src/main.ts", actions: [action] });
@@ -116,7 +119,10 @@ describe("Application SDK", () => {
         },
       }),
     );
-    expect(result).toBe("http://127.0.0.1:18092/v1/runs/run%2Ffixture/edge-cdp");
+    expect(result).toEqual({
+      http: "http://127.0.0.1:18092/v1/runs/run%2Ffixture/edge-cdp",
+      websocket: "ws://127.0.0.1:18092/v1/runs/run%2Ffixture/edge-cdp",
+    });
   });
 
   it("rejects malformed or non-loopback worker capability metadata", async () => {

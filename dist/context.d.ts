@@ -41,6 +41,7 @@ export interface RuntimeCapabilities {
     readonly headers: Readonly<Record<"Authorization", string>>;
     has(capability: string): boolean;
     endpoint(path: string): string;
+    webSocketEndpoint(path: string): string;
 }
 /**
  * The public structural context consumed by an App. Windforce Core owns the

@@ -46,6 +46,7 @@ export interface RuntimeCapabilities {
   readonly headers: Readonly<Record<"Authorization", string>>;
   has(capability: string): boolean;
   endpoint(path: string): string;
+  webSocketEndpoint(path: string): string;
 }
 
 /**

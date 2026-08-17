@@ -48,6 +48,18 @@ function createCapabilities(payload) {
     }
     const available = Object.freeze([...new Set(payload.available)].sort());
     const headers = Object.freeze({ Authorization: `Bearer ${payload.runToken}` });
+    const endpoint = (path) => {
+        if (path === "" ||
+            path.startsWith("/") ||
+            path.includes("\\") ||
+            path.split("/").some((part) => part === "" || part === "." || part === "..")) {
+            throw new Error("capability endpoint path must be a safe relative path");
+        }
+        const url = new URL(`v1/runs/${encodeURIComponent(payload.runRef)}/${path}`, baseURL);
+        if (url.origin !== baseURL.origin)
+            throw new Error("capability endpoint escaped loopback gateway");
+        return url;
+    };
     return Object.freeze({
         available,
         headers,
@@ -55,15 +67,11 @@ function createCapabilities(payload) {
             return available.includes(capability);
         },
         endpoint(path) {
-            if (path === "" ||
-                path.startsWith("/") ||
-                path.includes("\\") ||
-                path.split("/").some((part) => part === "" || part === "." || part === "..")) {
-                throw new Error("capability endpoint path must be a safe relative path");
-            }
-            const url = new URL(`v1/runs/${encodeURIComponent(payload.runRef)}/${path}`, baseURL);
-            if (url.origin !== baseURL.origin)
-                throw new Error("capability endpoint escaped loopback gateway");
+            return endpoint(path).toString();
+        },
+        webSocketEndpoint(path) {
+            const url = endpoint(path);
+            url.protocol = "ws:";
             return url.toString();
         },
     });
