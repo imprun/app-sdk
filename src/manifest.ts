@@ -10,7 +10,7 @@ type ActionHandler<TInput, TOutput> = {
   bivarianceHack(context: WindforceContext<TInput>): Awaitable<TOutput>;
 }["bivarianceHack"];
 export type JsonSchema = Readonly<Record<string, unknown>>;
-export type RuntimeConfigScope = "workspace" | "app";
+export type RuntimeConfigScope = "workspace" | "app" | "actor";
 export type RuntimeVariableStorage = "plain" | "secret";
 
 export interface RuntimeConfigTarget {
@@ -150,11 +150,11 @@ function normalizePortablePath(value: string, kind: string): string {
 }
 
 function normalizeTarget(target: RuntimeConfigTarget, requireApp: boolean): RuntimeConfigTarget {
-  if (target.scope !== "workspace" && target.scope !== "app") {
-    throw new Error("runtime target scope must be workspace or app");
+  if (target.scope !== "workspace" && target.scope !== "app" && target.scope !== "actor") {
+    throw new Error("runtime target scope must be workspace, app, or actor");
   }
-  if (requireApp && target.scope !== "app") {
-    throw new Error("runtime writes require app scope");
+  if (requireApp && target.scope !== "app" && target.scope !== "actor") {
+    throw new Error("runtime writes require app scope or actor scope");
   }
   return { scope: target.scope, path: normalizePortablePath(target.path, "runtime path") };
 }

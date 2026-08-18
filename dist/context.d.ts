@@ -23,6 +23,7 @@ export interface HumanTaskDecision<T = unknown> {
 export interface RuntimeMutationOptions {
     operationId: string;
     expectedRevision?: number;
+    scope?: "app" | "actor";
 }
 export interface RuntimeMutationResult {
     path: string;
@@ -80,11 +81,11 @@ export interface WindforceContext<TInput = unknown> {
         debug(...args: unknown[]): void;
     };
     variables: {
-        get(path: string, scope?: "workspace" | "app"): Promise<string>;
+        get(path: string, scope?: "workspace" | "app" | "actor"): Promise<string>;
         set(path: string, value: string, options: RuntimeMutationOptions): Promise<RuntimeMutationResult>;
     };
     resources: {
-        get(path: string, scope?: "workspace" | "app"): Promise<unknown>;
+        get(path: string, scope?: "workspace" | "app" | "actor"): Promise<unknown>;
         set(path: string, value: unknown, resourceType: string, options: RuntimeMutationOptions): Promise<RuntimeMutationResult>;
     };
     state: {
