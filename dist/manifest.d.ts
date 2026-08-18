@@ -6,7 +6,7 @@ type ActionHandler<TInput, TOutput> = {
     bivarianceHack(context: WindforceContext<TInput>): Awaitable<TOutput>;
 }["bivarianceHack"];
 export type JsonSchema = Readonly<Record<string, unknown>>;
-export type RuntimeConfigScope = "workspace" | "app";
+export type RuntimeConfigScope = "workspace" | "app" | "actor";
 export type RuntimeVariableStorage = "plain" | "secret";
 export interface RuntimeConfigTarget {
     scope: RuntimeConfigScope;

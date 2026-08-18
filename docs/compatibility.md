@@ -20,6 +20,8 @@ The conformance fixture covers:
 - action-level `runsOn` placement;
 - exact Workspace/App Variable and Resource reads;
 - App-scoped Secret Variable and Resource writes;
+- exact actor-scoped Variable and Resource reads and writes when Core supports
+  ADR 0049;
 - `ctx.human.wait` authoring;
 - `windforce.json`, explicit manifest names, and
   `WINDFORCE_CORE_MANIFEST_FILE` precedence.

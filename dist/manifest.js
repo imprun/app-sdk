@@ -36,11 +36,11 @@ function normalizePortablePath(value, kind) {
     return normalized;
 }
 function normalizeTarget(target, requireApp) {
-    if (target.scope !== "workspace" && target.scope !== "app") {
-        throw new Error("runtime target scope must be workspace or app");
+    if (target.scope !== "workspace" && target.scope !== "app" && target.scope !== "actor") {
+        throw new Error("runtime target scope must be workspace, app, or actor");
     }
-    if (requireApp && target.scope !== "app") {
-        throw new Error("runtime writes require app scope");
+    if (requireApp && target.scope !== "app" && target.scope !== "actor") {
+        throw new Error("runtime writes require app scope or actor scope");
     }
     return { scope: target.scope, path: normalizePortablePath(target.path, "runtime path") };
 }

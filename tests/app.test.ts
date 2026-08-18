@@ -191,6 +191,26 @@ describe("Application SDK", () => {
     ).toThrow("runtime writes require app scope");
   });
 
+  it("emits exact actor-scoped read and write grants", async () => {
+    const action = defineAction({
+      name: "connection.login",
+      runtimeAccess: {
+        variables: [{ scope: "actor", path: "connections/tistory/account" }],
+        writeVariables: [
+          { scope: "actor", path: "connections/tistory/session", storage: "secret" },
+        ],
+      },
+      handler: async () => ({ ok: true }),
+    });
+    const app = defineApp({ name: "publication", entrypoint: "src/main.ts", actions: [action] });
+    const described = await app.describe();
+
+    expect(described.manifest.actions["connection.login"]?.runtimeAccess).toEqual({
+      variables: [{ scope: "actor", path: "connections/tistory/account" }],
+      writeVariables: [{ scope: "actor", path: "connections/tistory/session", storage: "secret" }],
+    });
+  });
+
   it("rejects values outside the canonical Core key, path, and label grammar", () => {
     expect(() => defineAction({ name: "bad/action", handler() {} })).toThrow("invalid action key");
     expect(() =>
